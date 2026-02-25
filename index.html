@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Master 2026 - Fixed Shop</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        
+        body { margin: 0; background: #010205; overflow: hidden; touch-action: none; font-family: 'Orbitron', sans-serif; color: #fff; }
+        canvas { display: block; filter: contrast(1.2) brightness(1.1); }
+
+        /* واجهة الزجاج - Master UI */
+        #master-overlay {
+            position: absolute; width: 100%; height: 100%; 
+            background: radial-gradient(circle, rgba(0,255,200,0.1) 0%, rgba(0,0,0,1) 80%);
+            display: flex; align-items: center; justify-content: center; z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            padding: 30px; border-radius: 30px;
+            width: 85%; max-width: 400px; text-align: center;
+            box-shadow: 0 0 40px rgba(0, 255, 200, 0.1);
+        }
+
+        h1 { font-size: 2rem; margin: 0 0 20px 0; color: #00ffc8; text-shadow: 0 0 20px #00ffc8; }
+
+        input, select {
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px;
+            border: 1px solid #00ffc8; background: rgba(0,0,0,0.8);
+            color: #00ffc8; font-family: 'Orbitron'; outline: none; box-sizing: border-box;
+        }
+
+        .start-btn {
+            width: 100%; padding: 15px; margin-top: 15px; border: none;
+            border-radius: 12px; background: #00ffc8; color: #000;
+            font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px #00ffc8;
+        }
+
+        .item-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.07); padding: 15px; border-radius: 15px; margin: 15px 0;
+            border: 1px border rgba(255,204,0,0.3);
+        }
+
+        .buy-btn {
+            background: #ffcc00; color: #000; border: none; padding: 10px 20px;
+            border-radius: 8px; font-weight: 900; cursor: pointer;
+        }
+
+        #stats-bar {
+            position: absolute; top: 0; width: 100%; padding: 20px;
+            display: none; justify-content: space-around; box-sizing: border-box;
+            z-index: 50; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+
+        .stat-item { font-size: 1.1rem; font-weight: 900; color: #00ffc8; }
+        .gem-stat { color: #ffcc00 !important; text-shadow: 0 0 10px #ffcc00; }
+    </style>
+</head>
+<body>
+
+    <div id="master-overlay">
+        <div class="glass-panel">
+            <h1 id="menu-title">NEON MASTER</h1>
+            
+            <div id="input-zone">
+                <input type="text" id="pName" placeholder="ENTER NAME..." maxlength="10">
+                <select id="pDifficulty">
+                    <option value="6">LEVEL: EASY</option>
+                    <option value="9" selected>LEVEL: NORMAL</option>
+                    <option value="13">LEVEL: HARD</option>
+                </select>
+            </div>
+
+            <div class="item-row">
+                <div style="text-align: right;">
+                    <span style="display:block; font-size: 14px; font-weight: 900; color:#ffcc00;">GOLD SKIN</span>
+                    <span style="font-size: 10px; color:#aaa;">PRICE: 100 GEMS</span>
+                </div>
+                <button id="buySkinBtn" class="buy-btn" onclick="tryPurchase()">BUY</button>
+            </div>
+
+<button class="btn btn-reward" onclick="showRewardedAd()">
+                📺 فيديو = 20 جوهرة مجانية
+            </button>
+
+            <p style="font-size: 12px; color: #ffcc00;">YOUR GEMS: <span id="gems-total">0</span></p>
+            <button class="start-btn" onclick="initGame()">PLAY</button>
+        </div>
+    </div>
+
+    <div id="stats-bar">
+        <div class="stat-item" id="disp-name">PLAYER</div>
+        <div class="stat-item gem-stat">GEMS: <span id="disp-gems">0</span></div>
+        <div class="stat-item" id="disp-lives">❤️❤️❤️</div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let active = false, score = 0, lives = 3, speed = 9;
+        let totalGems = parseInt(localStorage.getItem("gems_2026")) || 0;
+        let hasGoldSkin = localStorage.getItem("skin_gold") === "true";
+        
+        // تحديث الواجهة فوراً
+        updateUIState();
+
+        function updateUIState() {
+            document.getElementById("gems-total").innerText = totalGems;
+            if(hasGoldSkin) {
+                document.getElementById("buySkinBtn").innerText = "OWNED";
+                document.getElementById("buySkinBtn").style.background = "#444";
+                document.getElementById("buySkinBtn").disabled = true;
+            }
+        }
+
+// --- نظام الإعلانات (Logic) ---
+        
+        // 1. إعلان بمكافأة (Rewarded)
+        function showRewardedAd() {
+            alert("جارٍ تحميل الفيديو...");
+            setTimeout(() => { // محاكاة الفيديو
+                totalGems += 20;
+                saveData();
+                updateUI();
+                alert("مبروك! خديتي 20 جوهرة.");
+            }, 2000);
+        }
+
+        // 2. إعلان بيني (Interstitial)
+        function showInterstitialAd() {
+            // كيطلع مرة كل 3 مرات كيخسر فيها اللاعب
+            if(deathCount % 3 === 0) {
+                console.log("إظهار إعلان ملء الشاشة...");
+                // هنا كتعيط على AdMob
+            }
+        }
+
+        function tryPurchase() {
+            if(!hasGoldSkin && totalGems >= 100) {
+                totalGems -= 100;
+                hasGoldSkin = true;
+                localStorage.setItem("gems_2026", totalGems);
+                localStorage.setItem("skin_gold", "true");
+                updateUIState();
+                alert("SUCCESS: GOLD SKIN EQUIPPED!");
+            } else if (!hasGoldSkin) {
+                alert("NEED " + (100 - totalGems) + " MORE GEMS!");
+            }
+        }
+
+        let player = { x: canvas.width/2, y: canvas.height-150, size: 55, targetX: canvas.width/2 };
+        let obstacles = [], gems = [];
+
+        function initGame() {
+            speed = parseInt(document.getElementById("pDifficulty").value);
+            document.getElementById("disp-name").innerText = (document.getElementById("pName").value || "PILOT").toUpperCase();
+            document.getElementById("master-overlay").style.display = "none";
+            document.getElementById("stats-bar").style.display = "flex";
+            
+            score = 0; lives = 3; obstacles = []; gems = [];
+            active = true;
+            loop();
+        }
+// --- التحكم بالكيبورد (Fix) ---
+        window.addEventListener("keydown", (e) => {
+            if (!active) return;
+            const step = 50; // سرعة القفزة عند الضغط
+            if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
+                player.targetX -= step;
+            }
+            if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
+                player.targetX += step;
+            }
+        });
+
+        // تحكم سلس
+        const move = (x) => { if(active) player.targetX = x - player.size/2; };
+        window.addEventListener("mousemove", (e) => move(e.clientX));
+        window.addEventListener("touchmove", (e) => { e.preventDefault(); move(e.touches[0].clientX); }, {passive:false});
+
+        function loop() {
+            if(!active) return;
+
+            ctx.fillStyle = "rgba(1, 2, 5, 0.3)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            player.x += (player.targetX - player.x) * 0.15;
+            player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+
+            // رسم اللاعب
+            let color = hasGoldSkin ? "#ffcc00" : "#00ffc8";
+            ctx.shadowBlur = 20; ctx.shadowColor = color;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(player.x, player.y, player.size, player.size, 10);
+            ctx.fill();
+
+            // الجواهر
+            if(Math.random() < 0.02) gems.push({x: Math.random()*(canvas.width-20), y: -50});
+            gems.forEach((g, i) => {
+                g.y += 5;
+                ctx.shadowBlur = 15; ctx.shadowColor = "#ffcc00";
+                ctx.fillStyle = "#ffcc00";
+                ctx.beginPath(); ctx.arc(g.x, g.y, 10, 0, Math.PI*2); ctx.fill();
+
+                if(Math.abs(player.x+25 - g.x) < 40 && Math.abs(player.y+25 - g.y) < 40) {
+                    totalGems++;
+                    gems.splice(i, 1);
+                    document.getElementById("disp-gems").innerText = parseInt(document.getElementById("disp-gems").innerText) + 1;
+                    localStorage.setItem("gems_2026", totalGems);
+                    document.getElementById("gems-total").innerText = totalGems;
+                }
+            });
+
+            // العوائق
+            if(Math.random() < 0.04) obstacles.push({x: Math.random()*(canvas.width-50), y: -60});
+            obstacles.forEach((o, i) => {
+                o.y += speed + (score/40);
+                ctx.shadowBlur = 10; ctx.shadowColor = "#ff2d55";
+                ctx.fillStyle = "#ff2d55";
+                ctx.fillRect(o.x, o.y, 50, 30);
+
+                if(player.x < o.x + 50 && player.x + player.size > o.x && player.y < o.y + 30) {
+                    lives--;
+                    obstacles.splice(i, 1);
+                    document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
+                    if(lives <= 0) {
+                        active = false;
+                        document.getElementById("master-overlay").style.display = "flex";
+                        document.getElementById("menu-title").innerText = "SCORE: " + score;
+                    }
+                }
+                if(o.y > canvas.height) { obstacles.splice(i, 1); score++; }
+            });
+
+            requestAnimationFrame(loop);
+        }
+    </script>
+</body>
+</html>
