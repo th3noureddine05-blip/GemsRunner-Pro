@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Master 2026 - Fixed Shop</title>
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script>
+  window.googletag = window.googletag || {cmd: []};
+  let interstitialSlot;
+
+  googletag.cmd.push(function() {
+    // ربط الـ ID الحقيقي ديالك هنا
+    interstitialSlot = googletag.defineOutOfPageSlot(
+      '/1757426516434712/9455800418', 
+      googletag.enums.OutOfPageFormat.INTERSTITIAL);
+    
+    if (interstitialSlot) {
+      interstitialSlot.addService(googletag.pubads());
+    }
+    googletag.enableServices();
+  });
+</script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
         
@@ -123,27 +140,29 @@
             }
         }
 
-// --- نظام الإعلانات (Logic) ---
-        
-        // 1. إعلان بمكافأة (Rewarded)
-        function showRewardedAd() {
-            alert("جارٍ تحميل الفيديو...");
-            setTimeout(() => { // محاكاة الفيديو
-                totalGems += 20;
-                saveData();
-                updateUI();
-                alert("مبروك! خديتي 20 جوهرة.");
-            }, 2000);
-        }
+// --- نظام الإعلانات الحقيقي (Logic) ---
 
-        // 2. إعلان بيني (Interstitial)
-        function showInterstitialAd() {
-            // كيطلع مرة كل 3 مرات كيخسر فيها اللاعب
-            if(deathCount % 3 === 0) {
-                console.log("إظهار إعلان ملء الشاشة...");
-                // هنا كتعيط على AdMob
-            }
-        }
+// 1. إعلان بمكافأة (محاكاة حتى تجيب الـ ID الخاص به)
+function showRewardedAd() {
+    alert("جارٍ تحميل فيديو المكافأة...");
+    setTimeout(() => {
+        totalGems += 20;
+        localStorage.setItem("gems_2026", totalGems);
+        updateUIState(); // تأكد أن السمية مطابقة للدالة عندك
+        alert("مبروك! خديتي 20 جوهرة مجانية.");
+    }, 2000);
+}
+
+// 2. إعلان بيني (حقيقي بالـ ID ديالك)
+function showInterstitialAd() {
+    // كيطلع مرة كل 3 مرات كيخسر فيها اللاعب
+    if(deathCount % 3 === 0) {
+        googletag.cmd.push(function() {
+            console.log("إظهار إعلان ملء الشاشة الحقيقي...");
+            googletag.display(interstitialSlot);
+        });
+    }
+}
 
         function tryPurchase() {
             if(!hasGoldSkin && totalGems >= 100) {
@@ -247,4 +266,5 @@
         }
     </script>
 </body>
+
 </html>
