@@ -3,84 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Master 2026</title>
+    <title>Neon Master 2026 - Pro Edition</title>
+    
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1757426516434712" crossorigin="anonymous"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+    
     <script>
       window.googletag = window.googletag || {cmd: []};
       let interstitialSlot, rewardedSlot, appOpenSlot;
+
       googletag.cmd.push(function() {
+        // App Open Ad
         appOpenSlot = googletag.defineOutOfPageSlot('/1757426516434712/9028872112', googletag.enums.OutOfPageFormat.APP_OPEN);
+        // Interstitial Ad
         interstitialSlot = googletag.defineOutOfPageSlot('/1757426516434712/9455800418', googletag.enums.OutOfPageFormat.INTERSTITIAL);
+        // Rewarded Ad
         rewardedSlot = googletag.defineOutOfPageSlot('/1757426516434712/8717735132', googletag.enums.OutOfPageFormat.REWARDED);
+        
         if (appOpenSlot) appOpenSlot.addService(googletag.pubads());
         if (interstitialSlot) interstitialSlot.addService(googletag.pubads());
         if (rewardedSlot) rewardedSlot.addService(googletag.pubads());
         googletag.enableServices();
       });
     </script>
+
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; color: #fff; }
-        #overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 100; }
-        .panel { border: 2px solid #00ffc8; padding: 20px; border-radius: 15px; text-align: center; width: 80%; }
-        input, select, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; }
-        #stats { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 10px; background: rgba(0,0,0,0.5); }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        body { margin: 0; background: #010205; overflow: hidden; touch-action: none; font-family: 'Orbitron', sans-serif; color: #fff; }
+        canvas { display: block; }
+        
+        #master-overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(5px); }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); border: 2px solid #00ffc8; padding: 25px; border-radius: 20px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 0 20px #00ffc844; }
+        
+        h1 { color: #00ffc8; text-shadow: 0 0 10px #00ffc8; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #00ffc8; background: #000; color: #00ffc8; font-family: 'Orbitron'; box-sizing: border-box; }
+        
+        .start-btn { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; background: #00ffc8; color: #000; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        .reward-btn { background: #ffcc00; color: #000; }
+        
+        #stats-bar { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 15px; z-index: 50; background: rgba(0,0,0,0.6); border-bottom: 1px solid #00ffc833; }
+        .stat-val { color: #00ffc8; font-weight: 900; }
     </style>
 </head>
 <body>
-    <div id="overlay">
-        <div class="panel">
-            <h1>NEON MASTER</h1>
-            <input type="text" id="pName" placeholder="NAME...">
-            <select id="diff"><option value="5">EASY</option><option value="8" selected>NORMAL</option><option value="12">HARD</option></select>
-            <button onclick="showRewardedAd()" style="background:#ffcc00">📺 +20 GEMS</button>
-            <button onclick="initGame()" style="background:#00ffc8">START</button>
+
+    <div id="master-overlay">
+        <div class="glass-panel">
+            <h1 id="menu-title">NEON MASTER</h1>
+            
+            <input type="text" id="playerName" placeholder="ENTER NAME..." maxlength="10">
+            
+            <select id="difficulty">
+                <option value="4">LEVEL: EASY</option>
+                <option value="7" selected>LEVEL: NORMAL</option>
+                <option value="11">LEVEL: HARD</option>
+            </select>
+
+            <p>GEMS: <span id="gems-total" style="color:#ffcc00">0</span></p>
+            
+            <button class="start-btn reward-btn" onclick="showRewardedAd()">📺 +20 FREE GEMS</button>
+            <button class="start-btn" onclick="initGame()">START MISSION</button>
         </div>
     </div>
-    <div id="stats">
-        <div id="n">PILOT</div>
-        <div>GEMS: <span id="g">0</span></div>
-        <div id="l">❤️❤️❤️</div>
-    </div>
-    <canvas id="c"></canvas>
-    <script>
-        const canvas = document.getElementById("c"), ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        let active = false, lives = 3, score = 0, speed = 8, deathCount = 0;
-        let gems = parseInt(localStorage.getItem("gems_2026")) || 0;
-        let player = { x: canvas.width/2-25, y: canvas.height-100, s: 50 }, obs = [];
 
-        window.onload = () => { googletag.cmd.push(() => { googletag.display(appOpenSlot); }); update(); };
-        function update() { document.getElementById("g").innerText = gems; }
-        function showRewardedAd() { 
-            googletag.cmd.push(() => { googletag.display(rewardedSlot); 
-            googletag.pubads().addEventListener('rewardedSlotReady', () => { gems+=20; localStorage.setItem("gems_2026", gems); update(); }); });
+    <div id="stats-bar">
+        <div id="disp-name" class="stat-val">PILOT</div>
+        <div style="color:#ffcc00">GEMS: <span id="disp-gems">0</span></div>
+        <div id="disp-lives">❤️❤️❤️</div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let active = false, score = 0, lives = 3, deathCount = 0, currentSpeed = 7;
+        let totalGems = parseInt(localStorage.getItem("gems_2026")) || 0;
+        let player = { x: canvas.width/2 - 25, y: canvas.height - 120, size: 50 };
+        let obstacles = [];
+
+        window.onload = () => {
+            googletag.cmd.push(() => { googletag.display(appOpenSlot); });
+            updateUI();
+        };
+
+        function updateUI() {
+            document.getElementById("gems-total").innerText = totalGems;
+            document.getElementById("disp-gems").innerText = totalGems;
         }
+
+        function showRewardedAd() {
+            googletag.cmd.push(() => { 
+                googletag.display(rewardedSlot);
+                googletag.pubads().addEventListener('rewardedSlotReady', (event) => {
+                    totalGems += 20;
+                    localStorage.setItem("gems_2026", totalGems);
+                    updateUI();
+                });
+            });
+        }
+
         function initGame() {
-            document.getElementById("n").innerText = document.getElementById("pName").value || "PILOT";
-            speed = parseInt(document.getElementById("diff").value);
-            document.getElementById("overlay").style.display = "none";
-            document.getElementById("stats").style.display = "flex";
-            active = true; lives = 3; obs = []; loop();
+            // جلب البيانات من الواجهة
+            const nameInput = document.getElementById("playerName").value;
+            currentSpeed = parseInt(document.getElementById("difficulty").value);
+            
+            document.getElementById("disp-name").innerText = (nameInput || "PILOT").toUpperCase();
+            document.getElementById("master-overlay").style.display = "none";
+            document.getElementById("stats-bar").style.display = "flex";
+            
+            active = true; lives = 3; score = 0; obstacles = [];
+            document.getElementById("disp-lives").innerText = "❤️❤️❤️";
+            loop();
         }
-        window.addEventListener("touchmove", (e) => { player.x = e.touches[0].clientX - 25; });
+
+        window.addEventListener("touchmove", (e) => {
+            if(!active) return;
+            player.x = e.touches[0].clientX - player.size/2;
+            // منع الخروج من الشاشة
+            if(player.x < 0) player.x = 0;
+            if(player.x > canvas.width - player.size) player.x = canvas.width - player.size;
+        });
+
         function loop() {
             if(!active) return;
-            ctx.fillStyle = "black"; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = "#00ffc8"; ctx.fillRect(player.x, player.y, 50, 50);
-            if(Math.random() < 0.05) obs.push({x: Math.random()*canvas.width, y: -50});
-            obs.forEach((o, i) => {
-                o.y += speed; ctx.fillStyle = "red"; ctx.fillRect(o.x, o.y, 40, 40);
-                if(player.x < o.x+40 && player.x+50 > o.x && player.y < o.y+40) {
-                    obs.splice(i,1); lives--; document.getElementById("l").innerText = "❤️".repeat(lives);
-                    if(lives <= 0) { 
-                        active = false; deathCount++; 
-                        if(deathCount%3===0) googletag.cmd.push(() => { googletag.display(interstitialSlot); });
-                        document.getElementById("overlay").style.display = "flex";
+            
+            // خلفية اللعبة
+            ctx.fillStyle = "#010205";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // رسم اللاعب (المركبة النيون)
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#00ffc8";
+            ctx.fillStyle = "#00ffc8";
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+            ctx.shadowBlur = 0;
+
+            // نظام العوائق
+            if(Math.random() < 0.04) {
+                obstacles.push({ 
+                    x: Math.random() * (canvas.width - 40), 
+                    y: -50,
+                    w: 40 + Math.random() * 20
+                });
+            }
+
+            obstacles.forEach((obs, i) => {
+                obs.y += currentSpeed;
+                
+                ctx.fillStyle = "#ff2d55";
+                ctx.fillRect(obs.x, obs.y, obs.w, 30);
+
+                // Collision detection
+                if(player.x < obs.x + obs.w && 
+                   player.x + player.size > obs.x && 
+                   player.y < obs.y + 30 && 
+                   player.y + player.size > obs.y) {
+                    
+                    obstacles.splice(i, 1);
+                    lives--;
+                    document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
+                    
+                    if(lives <= 0) {
+                        gameOver();
                     }
                 }
+
+                // حذف العوائق خارج الشاشة وزيادة السكور
+                if(obs.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                }
             });
+
             requestAnimationFrame(loop);
+        }
+
+        function gameOver() {
+            active = false;
+            deathCount++;
+            
+            // إظهار الإعلان البيني كل 3 موتات
+            if(deathCount % 3 === 0) {
+                googletag.cmd.push(() => { googletag.display(interstitialSlot); });
+            }
+            
+            document.getElementById("menu-title").innerText = "SCORE: " + score;
+            document.getElementById("master-overlay").style.display = "flex";
         }
     </script>
 </body>
