@@ -163,6 +163,25 @@ function showInterstitialAd() {
         });
     }
 }
+        let deathCount = 0; // تعريف العداد في بداية السكريبت
+
+function loop() {
+    if(!active) return;
+    // ... كود اللعبة المستمر ...
+
+    obstacles.forEach((o, i) => {
+        // ... منطق العوائق ...
+        if(player.x < o.x + 50 && player.x + player.size > o.x && player.y < o.y + 30) {
+            lives--;
+            if(lives <= 0) {
+                active = false;
+                deathCount++; // زيادة العداد عند كل خسارة
+                showInterstitialAd(); // استدعاء الإعلان البيني 
+                document.getElementById("master-overlay").style.display = "flex";
+            }
+        }
+    });
+}
 
         function tryPurchase() {
             if(!hasGoldSkin && totalGems >= 100) {
@@ -265,6 +284,15 @@ function showInterstitialAd() {
             requestAnimationFrame(loop);
         }
     </script>
+    <div id="banner-container" style="position: absolute; bottom: 0; width: 100%; display: flex; justify-content: center; z-index: 200;">
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:320px;height:50px"
+         data-ad-client="ca-pub-1757426516434712"
+         data-ad-slot="9455800418"></ins> <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
 </body>
 
 </html>
+
