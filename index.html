@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Master 2026 - Ultimate Edition</title>
+    <title>Neon Master 2026 - Working Edition</title>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1757426516434712" crossorigin="anonymous"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
@@ -13,69 +13,44 @@
       let interstitialSlot, rewardedSlot, appOpenSlot;
 
       googletag.cmd.push(function() {
-        // 1. إعلان الفتح (App Open)
-        appOpenSlot = googletag.defineOutOfPageSlot(
-          '/1757426516434712/9028872112', 
-          googletag.enums.OutOfPageFormat.APP_OPEN);
-
-        // 2. الإعلان البيني (Interstitial)
-        interstitialSlot = googletag.defineOutOfPageSlot(
-          '/1757426516434712/9455800418', 
-          googletag.enums.OutOfPageFormat.INTERSTITIAL);
-
-        // 3. إعلان المكافأة (Rewarded)
-        rewardedSlot = googletag.defineOutOfPageSlot(
-          '/1757426516434712/8717735132', 
-          googletag.enums.OutOfPageFormat.REWARDED);
-
+        appOpenSlot = googletag.defineOutOfPageSlot('/1757426516434712/9028872112', googletag.enums.OutOfPageFormat.APP_OPEN);
+        interstitialSlot = googletag.defineOutOfPageSlot('/1757426516434712/9455800418', googletag.enums.OutOfPageFormat.INTERSTITIAL);
+        rewardedSlot = googletag.defineOutOfPageSlot('/1757426516434712/8717735132', googletag.enums.OutOfPageFormat.REWARDED);
+        
         if (appOpenSlot) appOpenSlot.addService(googletag.pubads());
         if (interstitialSlot) interstitialSlot.addService(googletag.pubads());
         if (rewardedSlot) rewardedSlot.addService(googletag.pubads());
-
         googletag.enableServices();
       });
     </script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
-        body { margin: 0; background: #010205; overflow: hidden; touch-action: none; font-family: 'Orbitron', sans-serif; color: #fff; }
-        canvas { display: block; filter: contrast(1.2) brightness(1.1); }
-        #master-overlay { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0,255,200,0.1) 0%, rgba(0,0,0,1) 80%); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(8px); }
-        .glass-panel { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 255, 200, 0.3); padding: 30px; border-radius: 30px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 0 40px rgba(0, 255, 200, 0.1); }
-        h1 { font-size: 2rem; margin: 0 0 20px 0; color: #00ffc8; text-shadow: 0 0 20px #00ffc8; }
-        .start-btn { width: 100%; padding: 15px; margin-top: 15px; border: none; border-radius: 12px; background: #00ffc8; color: #000; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px #00ffc8; transition: 0.3s; }
-        .start-btn:hover { transform: scale(1.05); }
-        #stats-bar { position: absolute; top: 0; width: 100%; padding: 20px; display: none; justify-content: space-around; z-index: 50; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
-        #ad-banner-fixed { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: center; z-index: 200; background: rgba(0,0,0,0.6); padding: 5px 0; }
+        body { margin: 0; background: #010205; overflow: hidden; font-family: 'Orbitron', sans-serif; }
+        canvas { display: block; }
+        #master-overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .glass-panel { background: rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #00ffc8; }
+        .start-btn { padding: 15px 30px; background: #00ffc8; border: none; border-radius: 10px; cursor: pointer; font-weight: 900; }
+        #stats-bar { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 20px; z-index: 50; }
     </style>
 </head>
 <body>
 
     <div id="master-overlay">
         <div class="glass-panel">
-            <h1 id="menu-title">NEON MASTER</h1>
-            <p style="color: #ffcc00; font-weight: 900;">الجواهر: <span id="gems-total">0</span></p>
-            
-            <button class="start-btn" style="background:#ffcc00; margin-bottom:10px" onclick="showRewardedAd()">📺 فيديو = 20 جوهرة مجانية</button>
-            
-            <button class="start-btn" onclick="initGame()">ابدأ اللعب</button>
+            <h1>NEON MASTER</h1>
+            <p>GEMS: <span id="gems-total">0</span></p>
+            <button class="start-btn" style="background:#ffcc00" onclick="showRewardedAd()">📺 +20 GEMS</button><br><br>
+            <button class="start-btn" onclick="initGame()">START GAME</button>
         </div>
     </div>
 
     <div id="stats-bar">
-        <div style="color: #ffcc00; font-weight: 900;">GEMS: <span id="disp-gems">0</span></div>
-        <div id="disp-lives" style="letter-spacing: 5px;">❤️❤️❤️</div>
+        <div style="color:#ffcc00">GEMS: <span id="disp-gems">0</span></div>
+        <div id="disp-lives">❤️❤️❤️</div>
     </div>
 
     <canvas id="gameCanvas"></canvas>
-
-    <div id="ad-banner-fixed">
-        <ins class="adsbygoogle"
-             style="display:inline-block;width:320px;height:50px"
-             data-ad-client="ca-pub-1757426516434712"
-             data-ad-slot="9455800418"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -85,10 +60,11 @@
 
         let active = false, score = 0, lives = 3, deathCount = 0;
         let totalGems = parseInt(localStorage.getItem("gems_2026")) || 0;
+        let player = { x: canvas.width/2 - 25, y: canvas.height - 100, size: 50 };
+        let obstacles = [];
 
-        // إظهار إعلان الفتح وتحديث الواجهة عند التحميل
-        window.onload = function() {
-            googletag.cmd.push(function() { googletag.display(appOpenSlot); });
+        window.onload = () => {
+            googletag.cmd.push(() => { googletag.display(appOpenSlot); });
             updateUI();
         };
 
@@ -97,45 +73,59 @@
             document.getElementById("disp-gems").innerText = totalGems;
         }
 
-        // دالة إعلان المكافأة
         function showRewardedAd() {
-            googletag.cmd.push(function() {
+            googletag.cmd.push(() => { 
                 googletag.display(rewardedSlot);
-                // إضافة الجوائز بعد مشاهدة الإعلان
-                googletag.pubads().addEventListener('rewardedSlotReady', function() {
-                    totalGems += 20;
-                    localStorage.setItem("gems_2026", totalGems);
-                    updateUI();
-                    alert("تمت إضافة 20 جوهرة إلى رصيدك! 💎");
+                googletag.pubads().addEventListener('rewardedSlotReady', () => {
+                    totalGems += 20; localStorage.setItem("gems_2026", totalGems); updateUI();
                 });
             });
-        }
-
-        // دالة الإعلان البيني (يظهر كل 3 خسارات)
-        function showInterstitialAd() {
-            if(deathCount % 3 === 0) {
-                googletag.cmd.push(function() { googletag.display(interstitialSlot); });
-            }
         }
 
         function initGame() {
             document.getElementById("master-overlay").style.display = "none";
             document.getElementById("stats-bar").style.display = "flex";
-            active = true; score = 0; lives = 3; 
-            // منطق تشغيل اللعبة الخاص بك يوضع هنا
+            active = true; lives = 3; score = 0; obstacles = [];
+            document.getElementById("disp-lives").innerText = "❤️❤️❤️";
+            loop();
         }
 
-        // يتم استدعاء هذه الدالة عند اصطدام اللاعب بالعوائق
-        function onPlayerHit() {
-            lives--;
-            document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
-            if(lives <= 0) {
-                active = false;
-                deathCount++;
-                showInterstitialAd();
-                document.getElementById("master-overlay").style.display = "flex";
-                document.getElementById("menu-title").innerText = "SCORE: " + score;
-            }
+        // تحريك اللاعب باللمس
+        window.addEventListener("touchmove", (e) => {
+            player.x = e.touches[0].clientX - player.size/2;
+        });
+
+        function loop() {
+            if(!active) return;
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // رسم اللاعب
+            ctx.fillStyle = "#00ffc8";
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+
+            // توليد العوائق
+            if(Math.random() < 0.05) obstacles.push({ x: Math.random()*canvas.width, y: -50 });
+
+            obstacles.forEach((obs, i) => {
+                obs.y += 5;
+                ctx.fillStyle = "red";
+                ctx.fillRect(obs.x, obs.y, 40, 40);
+
+                // فحص التصادم
+                if(player.x < obs.x + 40 && player.x + 50 > obs.x && player.y < obs.y + 40) {
+                    obstacles.splice(i, 1);
+                    lives--;
+                    document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
+                    if(lives <= 0) {
+                        active = false; deathCount++;
+                        if(deathCount % 3 === 0) googletag.cmd.push(() => { googletag.display(interstitialSlot); });
+                        document.getElementById("master-overlay").style.display = "flex";
+                    }
+                }
+            });
+
+            requestAnimationFrame(loop);
         }
     </script>
 </body>
