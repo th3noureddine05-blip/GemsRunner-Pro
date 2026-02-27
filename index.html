@@ -1,205 +1,237 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Neon Master EMPIRE PRO MAX</title>
-<meta name="theme-color" content="#00ffc8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Master EMPIRE PRO</title>
 
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_ID"></script>
-<script>
-window.dataLayer=window.dataLayer||[];
-function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());
-gtag('config','YOUR_GA_ID');
-</script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-<!-- Google Ad Manager -->
-<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-<script>
-window.googletag=window.googletag||{cmd:[]};
-let interstitialSlot,rewardedSlot,appOpenSlot;
-googletag.cmd.push(()=>{
-  appOpenSlot=googletag.defineOutOfPageSlot('/123456789/neon_app_open',googletag.enums.OutOfPageFormat.APP_OPEN);
-  interstitialSlot=googletag.defineOutOfPageSlot('/123456789/neon_interstitial',googletag.enums.OutOfPageFormat.INTERSTITIAL);
-  rewardedSlot=googletag.defineOutOfPageSlot('/123456789/neon_rewarded',googletag.enums.OutOfPageFormat.REWARDED);
-  if(appOpenSlot) appOpenSlot.addService(googletag.pubads());
-  if(interstitialSlot) interstitialSlot.addService(googletag.pubads());
-  if(rewardedSlot) rewardedSlot.addService(googletag.pubads());
-  googletag.enableServices();
-});
-</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1757426516434712" crossorigin="anonymous"></script>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        body { margin: 0; background: #000; color: #fff; font-family: 'Orbitron', sans-serif; overflow: hidden; touch-action: none; }
+        canvas { display: block; }
+        
+        #ui-overlay { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); z-index: 100; }
+        .panel { background: rgba(255, 255, 255, 0.05); border: 2px solid #00ffc8; padding: 25px; border-radius: 20px; text-align: center; width: 85%; max-width: 350px; box-shadow: 0 0 20px rgba(0,255,200,0.2); }
+        
+        .btn { width: 100%; padding: 15px; margin: 8px 0; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; }
+        .btn-start { background: #00ffc8; color: #000; font-size: 20px; }
+        .btn-shop { background: #ff2d55; color: #fff; }
+        .btn-ads { background: #ffcc00; color: #000; font-size: 13px; }
 
-<style>
-body{margin:0;background:#000;color:#fff;font-family:'Orbitron',sans-serif;overflow:hidden}
-canvas{display:block}
-#ui-overlay{position:absolute;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);z-index:100}
-.panel{background:rgba(255,255,255,0.05);border:2px solid #00ffc8;padding:30px;border-radius:20px;text-align:center;width:85%;max-width:350px}
-.btn{width:100%;padding:15px;margin:8px 0;border:none;border-radius:8px;font-weight:900;cursor:pointer}
-.btn-start{background:#00ffc8;color:#000}
-.btn-shop{background:#ff2d55;color:#fff}
-.btn-ads{background:#ffcc00;color:#000}
-#stats{position:absolute;top:0;width:100%;display:none;justify-content:space-around;padding:15px;background:rgba(0,0,0,0.6);z-index:10}
-.skin-circle{width:45px;height:45px;display:inline-block;margin:8px;border-radius:50%;cursor:pointer;border:3px solid transparent}
-.skin-selected{border-color:#fff;transform:scale(1.1)}
-#xp-bar{position:absolute;bottom:0;width:100%;height:10px;background:#222}
-#xp-fill{height:100%;width:0;background:#00ffc8}
-</style>
+        #stats-bar { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.6); z-index: 50; }
+        #xp-bar { position: absolute; bottom: 0; width: 100%; height: 8px; background: #222; }
+        #xp-fill { height: 100%; width: 0%; background: #00ffc8; transition: 0.5s; }
+        
+        .skin-circle { width: 40px; height: 40px; display: inline-block; margin: 5px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+        .skin-selected { border-color: #fff; transform: scale(1.1); }
+        #leaderboard { margin-top: 15px; font-size: 11px; color: #00ffc8; border-top: 1px solid #333; padding-top: 10px; }
+    </style>
 </head>
 <body>
 
-<div id="ui-overlay">
-<div class="panel" id="main-menu">
-<h1 style="color:#00ffc8">NEON MASTER EMPIRE</h1>
-<p>BEST: <span id="best-score">0</span></p>
-<p>💎: <span id="gem-total">0</span></p>
-<p>LEAGUE: <span id="league-name">Bronze</span></p>
-<button class="btn btn-start" onclick="startGame()">START</button>
-<button class="btn btn-ads" onclick="claimDailyReward()">🎁 DAILY BONUS</button>
-<button class="btn btn-ads" onclick="showRewarded()">📺 +20 GEMS (AD)</button>
-<button class="btn btn-shop" onclick="toggleShop(true)">SHOP</button>
-<button class="btn btn-start" id="installBtn" style="display:none;">📲 INSTALL</button>
-</div>
+    <div id="ui-overlay">
+        <div class="panel" id="main-menu">
+            <h1 style="color:#00ffc8; margin-bottom:5px;">NEON EMPIRE</h1>
+            <p style="font-size:12px; margin:0;">LEAGUE: <span id="league-name" style="color:#ffcc00">Bronze</span></p>
+            <p>💎 <span id="gem-total">0</span> | BEST: <span id="best-score">0</span></p>
+            
+            <button class="btn btn-start" onclick="startGame()">START</button>
+            <button class="btn btn-ads" onclick="watchAdForGems()">📺 +20 GEMS</button>
+            <button class="btn btn-shop" onclick="toggleShop(true)">SHOP</button>
+            
+            <div id="leaderboard">
+                <strong>TOP EMPIRE:</strong>
+                <div id="top-list">Loading ranking...</div>
+            </div>
+        </div>
 
-<div class="panel" id="shop-menu" style="display:none;">
-<h2 style="color:#ffcc00">SKINS</h2>
-<div id="skins-list"></div>
-<button class="btn btn-start" onclick="toggleShop(false)">BACK</button>
-</div>
-</div>
+        <div class="panel" id="shop-menu" style="display:none;">
+            <h2 style="color:#ffcc00">SKINS</h2>
+            <div id="skins-list"></div>
+            <button class="btn btn-start" onclick="toggleShop(false)">BACK</button>
+        </div>
+    </div>
 
-<div id="stats">
-<div>SCORE: <span id="score-val">0</span></div>
-<div>💎: <span id="gem-val">0</span></div>
-</div>
+    <div id="stats-bar">
+        <div>SCORE: <span id="score-val">0</span></div>
+        <div style="color:#ffcc00">💎: <span id="gem-val">0</span></div>
+    </div>
 
-<canvas id="game"></canvas>
-<div id="xp-bar"><div id="xp-fill"></div></div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="xp-bar"><div id="xp-fill"></div></div>
 
-<script>
-// ===== Firebase Config =====
-const firebaseConfig = {
-  apiKey:"YOUR_FIREBASE_KEY",
-  authDomain:"YOUR_FIREBASE_DOMAIN",
-  projectId:"YOUR_FIREBASE_PROJECT"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    <script>
+        // --- CONFIGURATION FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyA...", // حطي الـ API Key ديالك هنا
+            authDomain: "neon-master-empire.firebaseapp.com",
+            projectId: "neon-master-empire",
+            storageBucket: "neon-master-empire.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef..."
+        };
 
-// ===== Variables =====
-let canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
-canvas.width=innerWidth;canvas.height=innerHeight;
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            var db = firebase.firestore();
+        } catch(e) { console.error("Firebase fail:", e); }
 
-let active=false,score=0,deathCount=0,totalGems=parseInt(localStorage.getItem("neon_gems"))||0;
-let bestScore=parseInt(localStorage.getItem("neon_highscore"))||0;
-let xp=parseInt(localStorage.getItem("xp"))||0,league=localStorage.getItem("league")||"Bronze";
-let player={x:canvas.width/2-20,y:canvas.height-120,size:40},obstacles=[],gemsArr=[];
-let playerColor="#00ffc8",shieldActive=false,slowMotion=false;
-let bossActive=false,bossHP=0,gemMultiplier=1;
+        // --- GAME VARIABLES ---
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let active = false;
+        let score = 0;
+        let totalGems = parseInt(localStorage.getItem("neon_gems")) || 0;
+        let bestScore = parseInt(localStorage.getItem("neon_best")) || 0;
+        let xp = parseInt(localStorage.getItem("neon_xp")) || 0;
+        let playerColor = localStorage.getItem("neon_color") || "#00ffc8";
+        
+        let player = { x: 0, y: 0, size: 40 };
+        let obstacles = [];
+        let gemsArr = [];
 
-// ===== Menu + UI =====
-const uiOverlay=document.getElementById("ui-overlay");
-const mainMenu=document.getElementById("main-menu");
-const shopMenu=document.getElementById("shop-menu");
-const stats=document.getElementById("stats");
-const installBtn=document.getElementById("installBtn");
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            player.x = canvas.width / 2 - 20;
+            player.y = canvas.height - 120;
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
-function updateLabels(){
-  document.getElementById("gem-total").innerText=totalGems;
-  document.getElementById("gem-val").innerText=totalGems;
-  document.getElementById("score-val").innerText=score;
-  document.getElementById("best-score").innerText=bestScore;
-  document.getElementById("league-name").innerText=league;
-  document.getElementById("xp-fill").style.width=((xp%1000)/10)+"%";
-}
-function toggleShop(show){mainMenu.style.display=show?'none':'block';shopMenu.style.display=show?'block':'none';renderSkins();}
-function renderSkins(){const container=document.getElementById("skins-list");const colors=["#00ffc8","#ffcc00","#ff2d55","#bf00ff","#ffffff"];container.innerHTML="";colors.forEach(c=>{const isSel=playerColor===c;container.innerHTML+=`<div onclick="setSkin('${c}')" class="skin-circle ${isSel?'skin-selected':''}" style="background:${c};box-shadow:0 0 10px ${c}"></div>`;});}
-function setSkin(c){playerColor=c;localStorage.setItem("neon_color",c);renderSkins();}
+        // --- UI & FIREBASE FUNCTIONS ---
+        function updateUI() {
+            document.getElementById("gem-total").innerText = totalGems;
+            document.getElementById("gem-val").innerText = totalGems;
+            document.getElementById("score-val").innerText = score;
+            document.getElementById("best-score").innerText = bestScore;
+            document.getElementById("xp-fill").style.width = (xp % 100) + "%";
+            
+            if(xp > 500) document.getElementById("league-name").innerText = "Gold";
+            else if(xp > 200) document.getElementById("league-name").innerText = "Silver";
+        }
 
-// ===== Daily Reward =====
-let lastDaily=localStorage.getItem("neon_daily");
-function claimDailyReward(){const today=new Date().toDateString();if(lastDaily!==today){totalGems+=50;localStorage.setItem("neon_gems",totalGems);localStorage.setItem("neon_daily",today);lastDaily=today;updateLabels();alert("+50 Gems!");}else alert("Already claimed today");}
+        async function saveToFirebase(s) {
+            if(db) {
+                await db.collection("leaderboard").add({
+                    score: s,
+                    date: new Date().getTime()
+                });
+                loadLeaderboard();
+            }
+        }
 
-// ===== Rewarded Ads =====
-function showRewarded(){googletag.cmd.push(()=>{googletag.pubads().addEventListener('rewardedSlotReady',e=>e.makeRewardedVisible());googletag.pubads().addEventListener('rewardedSlotGranted',()=>{totalGems+=20;localStorage.setItem("neon_gems",totalGems);updateLabels();});googletag.display(rewardedSlot);});}
+        function loadLeaderboard() {
+            if(!db) return;
+            db.collection("leaderboard").orderBy("score", "desc").limit(3).get().then(snap => {
+                let html = "";
+                snap.forEach(doc => { html += `<div>🏆 Score: ${doc.data().score}</div>`; });
+                document.getElementById("top-list").innerHTML = html;
+            });
+        }
 
-// ===== Start Game =====
-function startGame(){active=true;score=0;bossActive=false;shieldActive=false;slowMotion=false;obstacles=[];gemsArr=[];uiOverlay.style.display="none";stats.style.display="flex";animate();}
+        function toggleShop(show) {
+            document.getElementById("main-menu").style.display = show ? "none" : "block";
+            document.getElementById("shop-menu").style.display = show ? "block" : "none";
+            if(show) renderSkins();
+        }
 
-// ===== Player Movement =====
-const move = e => {let clientX=e.touches?e.touches[0].clientX:e.clientX;player.x=clientX-player.size/2;};
-window.addEventListener("mousemove",move);window.addEventListener("touchmove",move,{passive:false});
+        function renderSkins() {
+            const colors = ["#00ffc8", "#ffcc00", "#ff2d55", "#bf00ff", "#ffffff"];
+            let h = "";
+            colors.forEach(c => {
+                h += `<div onclick="setSkin('${c}')" class="skin-circle ${playerColor===c?'skin-selected':''}" style="background:${c}"></div>`;
+            });
+            document.getElementById("skins-list").innerHTML = h;
+        }
 
-// ===== XP + League =====
-function updateLeague(){if(xp>=5000)league="Neon Legend";else if(xp>=3000)league="Diamond";else if(xp>=2000)league="Gold";else if(xp>=1000)league="Silver";else league="Bronze";localStorage.setItem("league",league);}
-function addXP(points){xp+=points;localStorage.setItem("xp",xp);updateLeague();}
+        function setSkin(c) {
+            playerColor = c;
+            localStorage.setItem("neon_color", c);
+            renderSkins();
+        }
 
-// ===== Boss Mode =====
-function spawnBoss(){bossActive=true;bossHP=20;}
-function checkBoss(){if(score>0 && score%100===0 && !bossActive)spawnBoss();}
+        function watchAdForGems() {
+            alert("Ad is loading... (Simulation)");
+            totalGems += 20;
+            localStorage.setItem("neon_gems", totalGems);
+            updateUI();
+        }
 
-// ===== Animate Game =====
-function animate(){
-if(!active)return;
-ctx.fillStyle="#000";ctx.fillRect(0,0,canvas.width,canvas.height);
+        // --- CORE GAME ---
+        function startGame() {
+            active = true;
+            score = 0;
+            obstacles = [];
+            gemsArr = [];
+            document.getElementById("ui-overlay").style.display = "none";
+            document.getElementById("stats-bar").style.display = "flex";
+            updateUI();
+            animate();
+        }
 
-// Player
-ctx.shadowBlur=15;ctx.shadowColor=playerColor;
-ctx.fillStyle=playerColor;ctx.fillRect(player.x,player.y,player.size,player.size);
-ctx.shadowBlur=0;
+        function gameOver() {
+            active = false;
+            if(score > bestScore) {
+                bestScore = score;
+                localStorage.setItem("neon_best", bestScore);
+                saveToFirebase(bestScore);
+            }
+            document.getElementById("ui-overlay").style.display = "flex";
+            document.getElementById("stats-bar").style.display = "none";
+            updateUI();
+        }
 
-// Obstacles
-if(Math.random()<0.05) obstacles.push({x:Math.random()*(canvas.width-40),y:-40});
-obstacles.forEach((o,i)=>{
-  let speed=slowMotion?3:6;
-  o.y+=speed;
-  ctx.fillStyle="#ff3366";ctx.fillRect(o.x,o.y,45,25);
-  if(player.x<o.x+45&&player.x+40>o.x&&player.y<o.y+25&&player.y+40>o.y){
-    if(shieldActive){shieldActive=false;}else{gameOver();}
-  }
-  if(o.y>canvas.height){obstacles.splice(i,1);score++;addXP(5);updateLabels();}
-});
+        window.addEventListener("touchmove", e => { if(active) player.x = e.touches[0].clientX - 20; });
+        window.addEventListener("mousemove", e => { if(active) player.x = e.clientX - 20; });
 
-// Gems
-if(Math.random()<0.02) gemsArr.push({x:Math.random()*(canvas.width-20),y:-20});
-gemsArr.forEach((g,i)=>{
-  g.y+=4;
-  ctx.fillStyle="#ffcc00";ctx.beginPath();ctx.arc(g.x+10,g.y+10,10,0,Math.PI*2);ctx.fill();
-  if(player.x<g.x+20&&player.x+40>g.x&&player.y<g.y+20&&player.y+40>g.y){gemsArr.splice(i,1);totalGems+=1*gemMultiplier;localStorage.setItem("neon_gems",totalGems);updateLabels();}
-});
+        function animate() {
+            if(!active) return;
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-// Boss
-checkBoss();
-if(bossActive){
-  ctx.fillStyle="#ff0000";
-  ctx.fillRect(canvas.width/2-60,50,120,40);
-  if(Math.random()<0.02) bossHP--;
-  if(bossHP<=0){bossActive=false;totalGems+=100;localStorage.setItem("neon_gems",totalGems);updateLabels();}
-}
+            // Player
+            ctx.shadowBlur = 15; ctx.shadowColor = playerColor;
+            ctx.fillStyle = playerColor;
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+            ctx.shadowBlur = 0;
 
-requestAnimationFrame(animate);
-}
+            // Obstacles
+            if(Math.random() < 0.05) obstacles.push({x: Math.random()*(canvas.width-40), y: -40});
+            obstacles.forEach((o, i) => {
+                o.y += 6;
+                ctx.fillStyle = "#ff3366";
+                ctx.fillRect(o.x, o.y, 45, 25);
+                if(player.x < o.x + 45 && player.x + 40 > o.x && player.y < o.y + 25 && player.y + 40 > o.y) gameOver();
+                if(o.y > canvas.height) { obstacles.splice(i, 1); score++; xp += 2; updateUI(); }
+            });
 
-// ===== Game Over =====
-function gameOver(){active=false;deathCount++;if(score>bestScore){bestScore=score;localStorage.setItem("neon_highscore",bestScore);db.collection("leaderboard").add({score:bestScore});}uiOverlay.style.display="flex";stats.style.display="none";updateLabels();if(deathCount%3===0){googletag.cmd.push(()=>googletag.display(interstitialSlot));}}
+            // Gems
+            if(Math.random() < 0.02) gemsArr.push({x: Math.random()*(canvas.width-20), y: -20});
+            gemsArr.forEach((g, i) => {
+                g.y += 4;
+                ctx.fillStyle = "#ffcc00";
+                ctx.beginPath(); ctx.arc(g.x+10, g.y+10, 10, 0, 7); ctx.fill();
+                if(player.x < g.x + 20 && player.x + 40 > g.x && player.y < g.y + 20 && player.y + 40 > g.y) {
+                    gemsArr.splice(i, 1);
+                    totalGems++;
+                    localStorage.setItem("neon_gems", totalGems);
+                    updateUI();
+                }
+            });
 
-// ===== PWA =====
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+            requestAnimationFrame(animate);
+        }
 
-// ===== Install Button =====
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='block';});
-installBtn.onclick=()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;}}
-
-// ===== Weekend Event =====
-if(new Date().getDay()===6||new Date().getDay()===0) gemMultiplier=2; else gemMultiplier=1;
-
-updateLabels();
-</script>
+        // Initial Load
+        loadLeaderboard();
+        updateUI();
+    </script>
 </body>
 </html>
