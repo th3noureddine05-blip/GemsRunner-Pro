@@ -11,12 +11,10 @@
     <script>
       window.googletag = window.googletag || {cmd: []};
       let interstitialSlot, rewardedSlot, appOpenSlot;
-
       googletag.cmd.push(function() {
         appOpenSlot = googletag.defineOutOfPageSlot('/1757426516434712/9028872112', googletag.enums.OutOfPageFormat.APP_OPEN);
         interstitialSlot = googletag.defineOutOfPageSlot('/1757426516434712/9455800418', googletag.enums.OutOfPageFormat.INTERSTITIAL);
         rewardedSlot = googletag.defineOutOfPageSlot('/1757426516434712/8717735132', googletag.enums.OutOfPageFormat.REWARDED);
-        
         if (appOpenSlot) appOpenSlot.addService(googletag.pubads());
         if (interstitialSlot) interstitialSlot.addService(googletag.pubads());
         if (rewardedSlot) rewardedSlot.addService(googletag.pubads());
@@ -30,38 +28,52 @@
         canvas { display: block; margin: 0 auto; background: #000; }
         
         #master-overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 100; }
-        .glass-panel { background: rgba(255, 255, 255, 0.05); border: 2px solid #00ffc8; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 0 20px #00ffc844; }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); border: 2px solid #00ffc8; padding: 20px; border-radius: 20px; width: 85%; max-width: 380px; text-align: center; box-shadow: 0 0 20px #00ffc844; }
         
-        h1 { color: #00ffc8; text-shadow: 0 0 10px #00ffc8; font-size: 24px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #00ffc8; background: #000; color: #00ffc8; font-family: 'Orbitron'; box-sizing: border-box; font-size: 14px; outline: none; }
+        h1 { color: #00ffc8; text-shadow: 0 0 10px #00ffc8; font-size: 22px; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #00ffc8; background: #000; color: #00ffc8; font-family: 'Orbitron'; box-sizing: border-box; }
         
-        .start-btn { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; background: #00ffc8; color: #000; font-weight: 900; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .start-btn:active { transform: scale(0.95); }
-        .reward-btn { background: #ffcc00; margin-bottom: 10px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .start-btn { flex: 1; padding: 15px; border: none; border-radius: 8px; background: #00ffc8; color: #000; font-weight: 900; cursor: pointer; font-size: 14px; }
+        .shop-btn { background: #ff2d55; color: #fff; }
+        .reward-btn { background: #ffcc00; color: #000; margin-top: 10px; width: 100%; }
+
+        #shop-menu { display: none; flex-direction: column; align-items: center; }
+        .skin-item { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px; border-bottom: 1px solid #ffffff22; }
+        .skin-preview { width: 30px; height: 30px; border-radius: 4px; border: 1px solid #fff; }
+        .buy-btn { padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; min-width: 70px; }
         
-        #stats-bar { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 15px; z-index: 50; background: rgba(0,0,0,0.8); border-bottom: 1px solid #00ffc833; box-sizing: border-box; }
-        .stat-val { color: #00ffc8; font-weight: 900; font-size: 14px; }
+        #stats-bar { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 15px; z-index: 50; background: rgba(0,0,0,0.7); border-bottom: 1px solid #00ffc833; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
     <div id="master-overlay">
-        <div class="glass-panel">
-            <h1 id="menu-title">NEON MASTER</h1>
+        <div class="glass-panel" id="main-menu">
+            <h1>NEON MASTER</h1>
             <input type="text" id="playerName" placeholder="اسم الطيار..." maxlength="10">
             <select id="difficulty">
-                <option value="4">سهل (Easy)</option>
-                <option value="7" selected>متوسط (Normal)</option>
-                <option value="12">صعب (Hard)</option>
+                <option value="4">سهل</option>
+                <option value="7" selected>متوسط</option>
+                <option value="12">صعب</option>
             </select>
             <p>الجواهر: <span id="gems-total" style="color:#ffcc00">0</span></p>
+            <div class="btn-group">
+                <button class="start-btn" onclick="initGame()">إقلاع</button>
+                <button class="start-btn shop-btn" onclick="toggleShop(true)">المتجر 💎</button>
+            </div>
             <button class="start-btn reward-btn" onclick="showRewardedAd()">📺 +20 جوهرة (إعلان)</button>
-            <button class="start-btn" onclick="initGame()">إقلاع (START)</button>
+        </div>
+
+        <div class="glass-panel" id="shop-menu">
+            <h1>متجر الألوان</h1>
+            <div id="skin-list" style="width: 100%; margin-bottom: 15px; max-height: 200px; overflow-y: auto;"></div>
+            <button class="start-btn" onclick="toggleShop(false)">رجوع</button>
         </div>
     </div>
 
     <div id="stats-bar">
-        <div id="disp-name" class="stat-val">PILOT</div>
+        <div id="disp-name" style="color:#00ffc8">PILOT</div>
         <div style="color:#ffcc00">💎: <span id="disp-gems">0</span></div>
         <div id="disp-lives">❤️❤️❤️</div>
     </div>
@@ -71,22 +83,26 @@
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
 
         let active = false, score = 0, lives = 3, deathCount = 0, currentSpeed = 7;
         let totalGems = parseInt(localStorage.getItem("gems_2026")) || 0;
+        let playerColor = localStorage.getItem("playerColor_2026") || "#00ffc8";
+        let ownedSkins = JSON.parse(localStorage.getItem("ownedSkins_2026")) || ["#00ffc8"];
         let player = { x: canvas.width/2 - 25, y: canvas.height - 130, size: 50 };
-        let obstacles = [];
+        let obstacles = [], gameGems = [];
 
-        window.onload = () => {
+        const skins = [
+            { name: "أزرق", color: "#00ffc8", price: 0 },
+            { name: "ذهبي", color: "#ffcc00", price: 50 },
+            { name: "أحمر", color: "#ff2d55", price: 100 },
+            { name: "بنفسجي", color: "#bf00ff", price: 150 }
+        ];
+
+        window.onload = () => { 
             googletag.cmd.push(() => { googletag.display(appOpenSlot); });
-            updateUI();
+            updateUI(); 
         };
 
         function updateUI() {
@@ -94,7 +110,6 @@
             document.getElementById("disp-gems").innerText = totalGems;
         }
 
-        // --- وظائف المتجر ---
         function toggleShop(show) {
             document.getElementById("main-menu").style.display = show ? "none" : "block";
             document.getElementById("shop-menu").style.display = show ? "flex" : "none";
@@ -109,11 +124,8 @@
                 const isSelected = playerColor === skin.color;
                 list.innerHTML += `
                     <div class="skin-item">
-                        <div class="skin-preview" style="background:${skin.color}; box-shadow: 0 0 10px ${skin.color}"></div>
-                        <span style="font-size:12px">${skin.name}</span>
-                        <button class="buy-btn" 
-                            style="background:${isSelected ? '#00ffc8' : (isOwned ? '#555' : '#ffcc00')}; color:${isSelected ? '#000' : (isOwned ? '#fff' : '#000')}"
-                            onclick="handleSkin('${skin.color}', ${skin.price})">
+                        <div class="skin-preview" style="background:${skin.color}"></div>
+                        <button class="buy-btn" style="background:${isSelected ? '#00ffc8' : (isOwned ? '#555' : '#ffcc00')}" onclick="handleSkin('${skin.color}', ${skin.price})">
                             ${isSelected ? 'مختار' : (isOwned ? 'اختيار' : skin.price + ' 💎')}
                         </button>
                     </div>`;
@@ -123,56 +135,34 @@
         function handleSkin(color, price) {
             if (ownedSkins.includes(color)) {
                 playerColor = color;
-                localStorage.setItem("playerColor_2026", color);
             } else if (totalGems >= price) {
                 totalGems -= price;
                 ownedSkins.push(color);
                 playerColor = color;
-                localStorage.setItem("gems_2026", totalGems);
                 localStorage.setItem("ownedSkins_2026", JSON.stringify(ownedSkins));
-                localStorage.setItem("playerColor_2026", color);
-                updateUI();
-            } else {
-                alert("جواهر غير كافية! اجمع المزيد من اللعب أو شاهد إعلان.");
-            }
-            renderShop();
+            } else { alert("جواهر غير كافية!"); return; }
+            localStorage.setItem("playerColor_2026", playerColor);
+            localStorage.setItem("gems_2026", totalGems);
+            updateUI(); renderShop();
         }
 
-        // --- نظام الإعلانات ---
         function showRewardedAd() {
-            if (typeof googletag !== 'undefined' && rewardedSlot) {
-                googletag.cmd.push(() => { 
-                    googletag.display(rewardedSlot);
-                    googletag.pubads().addEventListener('rewardedSlotReady', () => {
-                        totalGems += 20;
-                        localStorage.setItem("gems_2026", totalGems);
-                        updateUI();
-                    });
+            googletag.cmd.push(() => { 
+                googletag.display(rewardedSlot);
+                googletag.pubads().addEventListener('rewardedSlotReady', () => {
+                    totalGems += 20; localStorage.setItem("gems_2026", totalGems); updateUI();
                 });
-            }
+            });
         }
 
-        // --- التحكم المشترك (الهاتف + الحاسوب) ---
         function movePlayer(targetX) {
             player.x = targetX - player.size / 2;
             if(player.x < 0) player.x = 0;
             if(player.x > canvas.width - player.size) player.x = canvas.width - player.size;
         }
 
-        // تحكم اللمس
-        canvas.addEventListener("touchmove", (e) => {
-            if(!active) return;
-            e.preventDefault();
-            movePlayer(e.touches[0].clientX);
-        }, {passive: false});
-
-        // تحكم الفأرة (PC)
-        canvas.addEventListener("mousemove", (e) => {
-            if(!active) return;
-            movePlayer(e.clientX);
-        });
-
-        // تحكم الكيبورد (PC)
+        canvas.addEventListener("touchmove", (e) => { if(active) movePlayer(e.touches[0].clientX); }, {passive: false});
+        canvas.addEventListener("mousemove", (e) => { if(active) movePlayer(e.clientX); });
         window.addEventListener("keydown", (e) => {
             if(!active) return;
             if (e.key === "ArrowLeft") player.x -= 30;
@@ -181,34 +171,23 @@
         });
 
         function initGame() {
-            const nameInput = document.getElementById("playerName").value;
-            currentSpeed = parseInt(document.getElementById("difficulty").value);
-            document.getElementById("disp-name").innerText = (nameInput || "PILOT").toUpperCase();
             document.getElementById("master-overlay").style.display = "none";
             document.getElementById("stats-bar").style.display = "flex";
-            active = true; lives = 3; score = 0; obstacles = [];
-            player.x = canvas.width / 2 - 25;
+            active = true; lives = 3; score = 0; obstacles = []; gameGems = [];
             document.getElementById("disp-lives").innerText = "❤️❤️❤️";
             loop();
         }
-
-        let gameGems = []; // مصفوفة لتخزين الجواهر اللي كيطيحو
 
         function loop() {
             if(!active) return;
             ctx.fillStyle = "#010205"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // رسم اللاعب
-            ctx.shadowBlur = 15; ctx.shadowColor = "#00ffc8"; ctx.fillStyle = "#00ffc8";
+            ctx.shadowBlur = 15; ctx.shadowColor = playerColor; ctx.fillStyle = playerColor;
             ctx.fillRect(player.x, player.y, player.size, player.size); ctx.shadowBlur = 0;
 
-            // 1. توليد العوائق (الحمراء)
             if(Math.random() < 0.05) obstacles.push({ x: Math.random() * (canvas.width - 50), y: -50 });
+            if(Math.random() < 0.02) gameGems.push({ x: Math.random() * (canvas.width - 30), y: -50 });
 
-            // 2. توليد الجواهر (الصفراء) - احتمال 2%
-            if(Math.random() < 0.02) gameGems.push({ x: Math.random() * (canvas.width - 30), y: -50, s: 25 });
-
-            // تحريك ورسم العوائق
             obstacles.forEach((obs, i) => {
                 obs.y += currentSpeed;
                 ctx.fillStyle = "#ff2d55"; ctx.fillRect(obs.x, obs.y, 50, 30);
@@ -219,55 +198,21 @@
                 if(obs.y > canvas.height) { obstacles.splice(i, 1); score++; }
             });
 
-            // تحريك ورسم الجواهر وسط اللعبة
             gameGems.forEach((gem, i) => {
-                gem.y += currentSpeed - 2; // الجواهر كتهبط شوية أبطأ من العوائق
-                ctx.fillStyle = "#ffcc00"; // لون الجواهر
-                ctx.beginPath();
-                ctx.arc(gem.x + 12, gem.y + 12, 10, 0, Math.PI * 2);
-                ctx.fill();
-
-                // إذا قاص اللاعب الجوهرة
-                if(player.x < gem.x + 25 && player.x + player.size > gem.x && player.y < gem.y + 25 && player.y + player.size > gem.y) {
-                    gameGems.splice(i, 1);
-                    totalGems += 1; // زيادة الجواهر
-                    localStorage.setItem("gems_2026", totalGems);
-                    updateUI(); // تحديث الأرقام في الشاشة
+                gem.y += currentSpeed - 2;
+                ctx.fillStyle = "#ffcc00"; ctx.beginPath(); ctx.arc(gem.x+12, gem.y+12, 10, 0, Math.PI*2); ctx.fill();
+                if(player.x < gem.x+25 && player.x+player.size > gem.x && player.y < gem.y+25 && player.y+player.size > gem.y) {
+                    gameGems.splice(i, 1); totalGems++; localStorage.setItem("gems_2026", totalGems); updateUI();
                 }
-                if(gem.y > canvas.height) gameGems.splice(i, 1);
-            });
-
-            requestAnimationFrame(loop);
-        }
-
-            obstacles.forEach((obs, i) => {
-                obs.y += currentSpeed;
-                ctx.fillStyle = "#ff2d55";
-                ctx.fillRect(obs.x, obs.y, obs.w, 30);
-
-                if(player.x < obs.x + obs.w && player.x + player.size > obs.x && player.y < obs.y + 30 && player.y + player.size > obs.y) {
-                    obstacles.splice(i, 1);
-                    lives--;
-                    document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
-                    if(lives <= 0) gameOver();
-                }
-
-                if(obs.y > canvas.height) { obstacles.splice(i, 1); score++; }
             });
             requestAnimationFrame(loop);
         }
 
         function gameOver() {
-            active = false;
-            deathCount++;
-            if(deathCount % 3 === 0) {
-                googletag.cmd.push(() => { googletag.display(interstitialSlot); });
-            }
-            document.getElementById("menu-title").innerText = "النتيجة: " + score;
+            active = false; deathCount++;
+            if(deathCount % 3 === 0) googletag.cmd.push(() => { googletag.display(interstitialSlot); });
             document.getElementById("master-overlay").style.display = "flex";
         }
     </script>
 </body>
 </html>
-
-
