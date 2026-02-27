@@ -148,22 +148,53 @@
             loop();
         }
 
+        let gameGems = []; // مصفوفة لتخزين الجواهر اللي كيطيحو
+
         function loop() {
             if(!active) return;
-            ctx.fillStyle = "#010205";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#010205"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // رسم اللاعب
+            ctx.shadowBlur = 15; ctx.shadowColor = "#00ffc8"; ctx.fillStyle = "#00ffc8";
+            ctx.fillRect(player.x, player.y, player.size, player.size); ctx.shadowBlur = 0;
 
-            // اللاعب
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#00ffc8";
-            ctx.fillStyle = "#00ffc8";
-            ctx.fillRect(player.x, player.y, player.size, player.size);
-            ctx.shadowBlur = 0;
+            // 1. توليد العوائق (الحمراء)
+            if(Math.random() < 0.05) obstacles.push({ x: Math.random() * (canvas.width - 50), y: -50 });
 
-            // العوائق
-            if(Math.random() < 0.05) {
-                obstacles.push({ x: Math.random() * (canvas.width - 50), y: -50, w: 50 });
-            }
+            // 2. توليد الجواهر (الصفراء) - احتمال 2%
+            if(Math.random() < 0.02) gameGems.push({ x: Math.random() * (canvas.width - 30), y: -50, s: 25 });
+
+            // تحريك ورسم العوائق
+            obstacles.forEach((obs, i) => {
+                obs.y += currentSpeed;
+                ctx.fillStyle = "#ff2d55"; ctx.fillRect(obs.x, obs.y, 50, 30);
+                if(player.x < obs.x + 50 && player.x + player.size > obs.x && player.y < obs.y + 30 && player.y + player.size > obs.y) {
+                    obstacles.splice(i, 1); lives--; document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
+                    if(lives <= 0) gameOver();
+                }
+                if(obs.y > canvas.height) { obstacles.splice(i, 1); score++; }
+            });
+
+            // تحريك ورسم الجواهر وسط اللعبة
+            gameGems.forEach((gem, i) => {
+                gem.y += currentSpeed - 2; // الجواهر كتهبط شوية أبطأ من العوائق
+                ctx.fillStyle = "#ffcc00"; // لون الجواهر
+                ctx.beginPath();
+                ctx.arc(gem.x + 12, gem.y + 12, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // إذا قاص اللاعب الجوهرة
+                if(player.x < gem.x + 25 && player.x + player.size > gem.x && player.y < gem.y + 25 && player.y + player.size > gem.y) {
+                    gameGems.splice(i, 1);
+                    totalGems += 1; // زيادة الجواهر
+                    localStorage.setItem("gems_2026", totalGems);
+                    updateUI(); // تحديث الأرقام في الشاشة
+                }
+                if(gem.y > canvas.height) gameGems.splice(i, 1);
+            });
+
+            requestAnimationFrame(loop);
+        }
 
             obstacles.forEach((obs, i) => {
                 obs.y += currentSpeed;
@@ -194,3 +225,4 @@
     </script>
 </body>
 </html>
+
