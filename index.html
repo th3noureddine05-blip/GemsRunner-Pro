@@ -94,6 +94,50 @@
             document.getElementById("disp-gems").innerText = totalGems;
         }
 
+        // --- وظائف المتجر ---
+        function toggleShop(show) {
+            document.getElementById("main-menu").style.display = show ? "none" : "block";
+            document.getElementById("shop-menu").style.display = show ? "flex" : "none";
+            if(show) renderShop();
+        }
+
+        function renderShop() {
+            const list = document.getElementById("skin-list");
+            list.innerHTML = "";
+            skins.forEach(skin => {
+                const isOwned = ownedSkins.includes(skin.color);
+                const isSelected = playerColor === skin.color;
+                list.innerHTML += `
+                    <div class="skin-item">
+                        <div class="skin-preview" style="background:${skin.color}; box-shadow: 0 0 10px ${skin.color}"></div>
+                        <span style="font-size:12px">${skin.name}</span>
+                        <button class="buy-btn" 
+                            style="background:${isSelected ? '#00ffc8' : (isOwned ? '#555' : '#ffcc00')}; color:${isSelected ? '#000' : (isOwned ? '#fff' : '#000')}"
+                            onclick="handleSkin('${skin.color}', ${skin.price})">
+                            ${isSelected ? 'مختار' : (isOwned ? 'اختيار' : skin.price + ' 💎')}
+                        </button>
+                    </div>`;
+            });
+        }
+
+        function handleSkin(color, price) {
+            if (ownedSkins.includes(color)) {
+                playerColor = color;
+                localStorage.setItem("playerColor_2026", color);
+            } else if (totalGems >= price) {
+                totalGems -= price;
+                ownedSkins.push(color);
+                playerColor = color;
+                localStorage.setItem("gems_2026", totalGems);
+                localStorage.setItem("ownedSkins_2026", JSON.stringify(ownedSkins));
+                localStorage.setItem("playerColor_2026", color);
+                updateUI();
+            } else {
+                alert("جواهر غير كافية! اجمع المزيد من اللعب أو شاهد إعلان.");
+            }
+            renderShop();
+        }
+
         // --- نظام الإعلانات ---
         function showRewardedAd() {
             if (typeof googletag !== 'undefined' && rewardedSlot) {
@@ -225,4 +269,5 @@
     </script>
 </body>
 </html>
+
 
