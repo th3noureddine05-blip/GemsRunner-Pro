@@ -126,6 +126,31 @@
 
         canvas.addEventListener("touchstart", handleTouch, {passive: false});
         canvas.addEventListener("touchmove", handleTouch, {passive: false});
+        // --- إضافة التحكم بالـ PC (لوحة المفاتيح) ---
+window.addEventListener("keydown", (e) => {
+    if(!active) return;
+    const step = 20; // سرعة تحرك المربع عند الضغط
+    if (e.key === "ArrowLeft") {
+        player.x -= step;
+    } else if (e.key === "ArrowRight") {
+        player.x += step;
+    }
+    
+    // منع الخروج من الشاشة
+    if(player.x < 0) player.x = 0;
+    if(player.x > canvas.width - player.size) player.x = canvas.width - player.size;
+});
+
+// --- إضافة التحكم بالفأرة (Mouse) للـ PC ---
+canvas.addEventListener("mousemove", (e) => {
+    if(!active) return;
+    let rect = canvas.getBoundingClientRect();
+    let mouseX = e.clientX - rect.left;
+    player.x = mouseX - player.size / 2;
+
+    if(player.x < 0) player.x = 0;
+    if(player.x > canvas.width - player.size) player.x = canvas.width - player.size;
+});
 
         function initGame() {
             const nameInput = document.getElementById("playerName").value;
@@ -206,4 +231,5 @@
     </script>
 </body>
 </html>
+
 
