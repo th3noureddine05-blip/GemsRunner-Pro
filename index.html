@@ -95,16 +95,18 @@
             document.getElementById("disp-gems").innerText = totalGems;
         }
 
-        function showRewardedAd() {
-            googletag.cmd.push(() => { 
-                googletag.display(rewardedSlot);
-                googletag.pubads().addEventListener('rewardedSlotReady', () => {
-                    totalGems += 20;
-                    localStorage.setItem("gems_2026", totalGems);
-                    updateUI();
-                });
-            });
-        }
+       function showRewardedAd() {
+    // التأكد من أن الإعلان تم تعريفه وتحميله
+    if (typeof googletag !== 'undefined' && rewardedSlot) {
+        googletag.cmd.push(() => { 
+            googletag.display(rewardedSlot);
+            // إذا لم يظهر شيء، فهذا يعني أن جوجل لم ترسل إعلاناً بعد لهذا النطاق (Domain)
+            console.log("جاري طلب الإعلان من خوادم جوجل...");
+        });
+    } else {
+        alert("إعدادات الإعلانات لم تكتمل بعد، يرجى المحاولة لاحقاً.");
+    }
+}
 
         // --- إصلاح نظام اللمس للتحريك يميناً ويساراً ---
         function handleTouch(e) {
@@ -204,3 +206,4 @@
     </script>
 </body>
 </html>
+
