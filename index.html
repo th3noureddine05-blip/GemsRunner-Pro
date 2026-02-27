@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Master 2026 - Final Edition</title>
+    <title>Neon Master 2026 - Master Edition</title>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1757426516434712" crossorigin="anonymous"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
@@ -27,18 +27,19 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
         body { margin: 0; background: #010205; overflow: hidden; touch-action: none; font-family: 'Orbitron', sans-serif; color: #fff; }
-        canvas { display: block; background: #000; }
+        canvas { display: block; margin: 0 auto; background: #000; }
         
         #master-overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 100; }
         .glass-panel { background: rgba(255, 255, 255, 0.05); border: 2px solid #00ffc8; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 0 20px #00ffc844; }
         
         h1 { color: #00ffc8; text-shadow: 0 0 10px #00ffc8; font-size: 24px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #00ffc8; background: #000; color: #00ffc8; font-family: 'Orbitron'; box-sizing: border-box; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #00ffc8; background: #000; color: #00ffc8; font-family: 'Orbitron'; box-sizing: border-box; font-size: 14px; outline: none; }
         
-        .start-btn { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; background: #00ffc8; color: #000; font-weight: 900; cursor: pointer; font-size: 16px; }
+        .start-btn { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; background: #00ffc8; color: #000; font-weight: 900; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .start-btn:active { transform: scale(0.95); }
         .reward-btn { background: #ffcc00; margin-bottom: 10px; }
         
-        #stats-bar { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 15px; z-index: 50; background: rgba(0,0,0,0.7); border-bottom: 1px solid #00ffc833; box-sizing: border-box; }
+        #stats-bar { position: absolute; top: 0; width: 100%; display: none; justify-content: space-around; padding: 15px; z-index: 50; background: rgba(0,0,0,0.8); border-bottom: 1px solid #00ffc833; box-sizing: border-box; }
         .stat-val { color: #00ffc8; font-weight: 900; font-size: 14px; }
     </style>
 </head>
@@ -47,15 +48,15 @@
     <div id="master-overlay">
         <div class="glass-panel">
             <h1 id="menu-title">NEON MASTER</h1>
-            <input type="text" id="playerName" placeholder="اسم اللاعب..." maxlength="10">
+            <input type="text" id="playerName" placeholder="اسم الطيار..." maxlength="10">
             <select id="difficulty">
-                <option value="4">مستوى: سهل</option>
-                <option value="7" selected>مستوى: متوسط</option>
-                <option value="11">مستوى: صعب</option>
+                <option value="4">سهل (Easy)</option>
+                <option value="7" selected>متوسط (Normal)</option>
+                <option value="12">صعب (Hard)</option>
             </select>
             <p>الجواهر: <span id="gems-total" style="color:#ffcc00">0</span></p>
-            <button class="start-btn reward-btn" onclick="showRewardedAd()">📺 +20 جوهرة مجانية</button>
-            <button class="start-btn" onclick="initGame()">ابدأ المهمة</button>
+            <button class="start-btn reward-btn" onclick="showRewardedAd()">📺 +20 جوهرة (إعلان)</button>
+            <button class="start-btn" onclick="initGame()">إقلاع (START)</button>
         </div>
     </div>
 
@@ -71,7 +72,6 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         
-        // ضبط حجم الكانفاس
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -84,7 +84,6 @@
         let player = { x: canvas.width/2 - 25, y: canvas.height - 130, size: 50 };
         let obstacles = [];
 
-        // إعلان الفتح عند التحميل
         window.onload = () => {
             googletag.cmd.push(() => { googletag.display(appOpenSlot); });
             updateUI();
@@ -95,71 +94,54 @@
             document.getElementById("disp-gems").innerText = totalGems;
         }
 
-       function showRewardedAd() {
-    // التأكد من أن الإعلان تم تعريفه وتحميله
-    if (typeof googletag !== 'undefined' && rewardedSlot) {
-        googletag.cmd.push(() => { 
-            googletag.display(rewardedSlot);
-            // إذا لم يظهر شيء، فهذا يعني أن جوجل لم ترسل إعلاناً بعد لهذا النطاق (Domain)
-            console.log("جاري طلب الإعلان من خوادم جوجل...");
-        });
-    } else {
-        alert("إعدادات الإعلانات لم تكتمل بعد، يرجى المحاولة لاحقاً.");
-    }
-}
+        // --- نظام الإعلانات ---
+        function showRewardedAd() {
+            if (typeof googletag !== 'undefined' && rewardedSlot) {
+                googletag.cmd.push(() => { 
+                    googletag.display(rewardedSlot);
+                    googletag.pubads().addEventListener('rewardedSlotReady', () => {
+                        totalGems += 20;
+                        localStorage.setItem("gems_2026", totalGems);
+                        updateUI();
+                    });
+                });
+            }
+        }
 
-        // --- إصلاح نظام اللمس للتحريك يميناً ويساراً ---
-        function handleTouch(e) {
-            if(!active) return;
-            e.preventDefault(); 
-            let touch = e.touches[0];
-            let rect = canvas.getBoundingClientRect();
-            let touchX = touch.clientX - rect.left;
-            
-            // جعل اللاعب يتبع الإصبع في المحور X فقط
-            player.x = touchX - player.size / 2;
-
-            // منع الخروج من حدود الشاشة
+        // --- التحكم المشترك (الهاتف + الحاسوب) ---
+        function movePlayer(targetX) {
+            player.x = targetX - player.size / 2;
             if(player.x < 0) player.x = 0;
             if(player.x > canvas.width - player.size) player.x = canvas.width - player.size;
         }
 
-        canvas.addEventListener("touchstart", handleTouch, {passive: false});
-        canvas.addEventListener("touchmove", handleTouch, {passive: false});
-        // --- إضافة التحكم بالـ PC (لوحة المفاتيح) ---
-window.addEventListener("keydown", (e) => {
-    if(!active) return;
-    const step = 20; // سرعة تحرك المربع عند الضغط
-    if (e.key === "ArrowLeft") {
-        player.x -= step;
-    } else if (e.key === "ArrowRight") {
-        player.x += step;
-    }
-    
-    // منع الخروج من الشاشة
-    if(player.x < 0) player.x = 0;
-    if(player.x > canvas.width - player.size) player.x = canvas.width - player.size;
-});
+        // تحكم اللمس
+        canvas.addEventListener("touchmove", (e) => {
+            if(!active) return;
+            e.preventDefault();
+            movePlayer(e.touches[0].clientX);
+        }, {passive: false});
 
-// --- إضافة التحكم بالفأرة (Mouse) للـ PC ---
-canvas.addEventListener("mousemove", (e) => {
-    if(!active) return;
-    let rect = canvas.getBoundingClientRect();
-    let mouseX = e.clientX - rect.left;
-    player.x = mouseX - player.size / 2;
+        // تحكم الفأرة (PC)
+        canvas.addEventListener("mousemove", (e) => {
+            if(!active) return;
+            movePlayer(e.clientX);
+        });
 
-    if(player.x < 0) player.x = 0;
-    if(player.x > canvas.width - player.size) player.x = canvas.width - player.size;
-});
+        // تحكم الكيبورد (PC)
+        window.addEventListener("keydown", (e) => {
+            if(!active) return;
+            if (e.key === "ArrowLeft") player.x -= 30;
+            if (e.key === "ArrowRight") player.x += 30;
+            movePlayer(player.x + player.size/2);
+        });
 
         function initGame() {
             const nameInput = document.getElementById("playerName").value;
             currentSpeed = parseInt(document.getElementById("difficulty").value);
-            
             document.getElementById("disp-name").innerText = (nameInput || "PILOT").toUpperCase();
             document.getElementById("master-overlay").style.display = "none";
             document.getElementById("stats-bar").style.display = "flex";
-            
             active = true; lives = 3; score = 0; obstacles = [];
             player.x = canvas.width / 2 - 25;
             document.getElementById("disp-lives").innerText = "❤️❤️❤️";
@@ -168,68 +150,47 @@ canvas.addEventListener("mousemove", (e) => {
 
         function loop() {
             if(!active) return;
-            
             ctx.fillStyle = "#010205";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // رسم اللاعب بتأثير نيون
+            // اللاعب
             ctx.shadowBlur = 15;
             ctx.shadowColor = "#00ffc8";
             ctx.fillStyle = "#00ffc8";
             ctx.fillRect(player.x, player.y, player.size, player.size);
             ctx.shadowBlur = 0;
 
-            // توليد العوائق
-            if(Math.random() < 0.04) {
-                obstacles.push({ 
-                    x: Math.random() * (canvas.width - 50), 
-                    y: -50,
-                    w: 40 + Math.random() * 30
-                });
+            // العوائق
+            if(Math.random() < 0.05) {
+                obstacles.push({ x: Math.random() * (canvas.width - 50), y: -50, w: 50 });
             }
 
             obstacles.forEach((obs, i) => {
                 obs.y += currentSpeed;
-                
                 ctx.fillStyle = "#ff2d55";
                 ctx.fillRect(obs.x, obs.y, obs.w, 30);
 
-                // فحص التصادم
-                if(player.x < obs.x + obs.w && 
-                   player.x + player.size > obs.x && 
-                   player.y < obs.y + 30 && 
-                   player.y + player.size > obs.y) {
-                    
+                if(player.x < obs.x + obs.w && player.x + player.size > obs.x && player.y < obs.y + 30 && player.y + player.size > obs.y) {
                     obstacles.splice(i, 1);
                     lives--;
                     document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
-                    
-                    if(lives <= 0) { gameOver(); }
+                    if(lives <= 0) gameOver();
                 }
 
-                if(obs.y > canvas.height) {
-                    obstacles.splice(i, 1);
-                    score++;
-                }
+                if(obs.y > canvas.height) { obstacles.splice(i, 1); score++; }
             });
-
             requestAnimationFrame(loop);
         }
 
         function gameOver() {
             active = false;
             deathCount++;
-            
-            // إعلان بيني كل 3 موتات
             if(deathCount % 3 === 0) {
                 googletag.cmd.push(() => { googletag.display(interstitialSlot); });
             }
-            
             document.getElementById("menu-title").innerText = "النتيجة: " + score;
             document.getElementById("master-overlay").style.display = "flex";
         }
     </script>
 </body>
 </html>
-
-
